@@ -1,30 +1,37 @@
-name: Advanced deploy
+name: Deploy to AWS EC2
+
 on:
   push:
-    branches: [ master ]
-
-permissions:
-  contents: read
-
+    branches:
+      - master
 jobs:
-  EC2-Deploy:
+  deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: ${{ github.ref_name }}
-      url: ${{ steps.deploy.outputs.vm_url }}
+
     steps:
-    - id: deploy
-      name: Deploy
-      uses: bitovi/github-actions-deploy-docker-to-ec2@v0.5.0
-      with:
-        aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws_session_token: ${{ secrets.AWS_SESSION_TOKEN }}
-        aws_default_region: us-east-1
-        # domain_name: bitovi.com
-        # sub_domain: app
-        # tf_state_bucket: my-terraform-state-bucket
-        # dot_env: ${{ secrets.DOT_ENV }}
-        # ghv_env: ${{ vars.VARS }}
-        app_port: 3000
-        # additional_tags: "{\"key1\": \"value1\",\"key2\": \"value2\"}"
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-east-1
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Install Docker and Docker Compose
+        run: |
+          sudo yum update -y
+          sudo amazon-linux-extras install docker
+          sudo service docker start
+          sudo usermod -a -G docker ec2-user
+          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+
+      - name: Clone Github repository
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@54.226.15.234 "git clone git@github.com:superdesk/video-server-app.git"
+
+      - name: Build and run Docker Compose
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@54.226.15.234 "cd video-server-app && sudo docker-compose up -d"
