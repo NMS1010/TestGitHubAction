@@ -107,7 +107,7 @@ jobs:
     #     github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: Connect AWS EC2 + Run
       run: |
-        sudo ssh -i "./nms.pem" ubuntu@ec2-3-82-176-84.compute-1.amazonaws.com
+        sudo ssh -t -t -i "./nms.pem" ubuntu@ec2-3-82-176-84.compute-1.amazonaws.com
         git clone https://github.com/NMS1010/TestGitHubAction
         cd TestGitHubAction/
         sudo apt-get update
