@@ -105,16 +105,34 @@ jobs:
     #   uses: ad-m/github-push-action@master
     #   with:
     #     github_token: ${{ secrets.GITHUB_TOKEN }}
-    - name: Connect AWS EC2 + Run
-      run: |
-        sudo ssh -t -t -o StrictHostKeyChecking=no -i "./nms.pem" ubuntu@ec2-3-82-176-84.compute-1.amazonaws.com
-        git clone https://github.com/NMS1010/TestGitHubAction
-        cd TestGitHubAction/
-        sudo apt-get update
-        sudo apt-get install -y docker.io
-        sudo systemctl start docker
-        sudo systemctl enable docker
-        sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-        sudo chmod +x /usr/local/bin/docker-compose
-        sudo docker-compose down
-        sudo docker-compose up -d
+    - name: SSH into EC2 instance
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.SSH_PORT }}
+        script: |
+          git clone https://github.com/NMS1010/TestGitHubAction
+          cd TestGitHubAction/
+          sudo apt-get update
+          sudo apt-get install -y docker.io
+          sudo systemctl start docker
+          sudo systemctl enable docker
+          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          sudo docker-compose down
+          sudo docker-compose up -d
+    # - name: Connect AWS EC2 + Run
+    #   run: |
+    #     sudo ssh -t -t -o StrictHostKeyChecking=no -i "./nms.pem" ubuntu@ec2-3-82-176-84.compute-1.amazonaws.com
+    #     git clone https://github.com/NMS1010/TestGitHubAction
+    #     cd TestGitHubAction/
+    #     sudo apt-get update
+    #     sudo apt-get install -y docker.io
+    #     sudo systemctl start docker
+    #     sudo systemctl enable docker
+    #     sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    #     sudo chmod +x /usr/local/bin/docker-compose
+    #     sudo docker-compose down
+    #     sudo docker-compose up -d
