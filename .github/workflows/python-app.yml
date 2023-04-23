@@ -95,7 +95,7 @@ jobs:
         pip install pytest==6.2.5
         pip install cerberus
         pip install pytest-html
-        sudo chmod +x /home/runner/work/Test-GitAction/Test-GitAction/video-server/src/videoserver/lib/video_editor/script/capture_list_frames.sh
+        sudo chmod +x /home/runner/work/TestGitHubAction/TestGitHubAction/video-server/src/videoserver/lib/video_editor/script/capture_list_frames.sh
         pytest --html=report.html
         git config --global user.email "nguyenminhson102002@gmail.com"
         git config --global user.name "NMS1010"
