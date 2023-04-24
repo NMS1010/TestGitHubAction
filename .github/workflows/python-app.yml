@@ -108,7 +108,10 @@ jobs:
         git config user.email "nguyenminhson102002@gmail.com"
         git add .
         git commit -m "add text"
-        git push
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GH_TOKEN }}
     # - name: SSH into EC2 instance + Deploy
     #   uses: appleboy/ssh-action@master
     #   with:
