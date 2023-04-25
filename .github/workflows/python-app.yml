@@ -100,9 +100,10 @@ jobs:
         sudo chmod +x /home/runner/work/TestGitHubAction/TestGitHubAction/video-server/src/videoserver/lib/video_editor/script/capture_list_frames.sh
         pytest --html=report.html
   scan:
-    needs: build
     name: Sonarqube - Code Quanlity Scan
-    step:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
     - uses: actions/checkout@v2
     - name: SonarCloud scan
       uses: sonarsource/sonarcloud-github-action@master
