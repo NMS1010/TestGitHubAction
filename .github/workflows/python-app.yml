@@ -95,8 +95,16 @@ jobs:
         pip install pytest==6.2.5
         pip install cerberus
         pip install pytest-html
+    - name: Run tests
+      run: |
+        source venv/bin/activate
         sudo chmod +x /home/runner/work/TestGitHubAction/TestGitHubAction/video-server/src/videoserver/lib/video_editor/script/capture_list_frames.sh
-        pytest --html=report.html
+        python -m pytest --html=report.html -vv -n auto --self-contained-html
+    - name: Upload Test Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: Test Report
+          path: video_service/report.html
   scan:
     name: Sonarqube - Code Quanlity Scan
     needs: build
@@ -108,28 +116,28 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  deploy:
-    needs: scan
-    name: Deploy to EC2
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: SSH into EC2 instance + Deploy
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USERNAME }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: ${{ secrets.SSH_PORT }}
-        script: |
-          git clone https://github.com/NMS1010/TestGitHubAction
-          cd TestGitHubAction/
-          sudo apt-get update
-          sudo apt-get install -y docker.io
-          sudo systemctl start docker
-          sudo systemctl enable docker
-          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-          sudo docker-compose down
-          sudo docker-compose up -d
+  # deploy:
+  #   needs: scan
+  #   name: Deploy to EC2
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - name: SSH into EC2 instance + Deploy
+  #     uses: appleboy/ssh-action@master
+  #     with:
+  #       host: ${{ secrets.SSH_HOST }}
+  #       username: ${{ secrets.SSH_USERNAME }}
+  #       key: ${{ secrets.SSH_PRIVATE_KEY }}
+  #       port: ${{ secrets.SSH_PORT }}
+  #       script: |
+  #         git clone https://github.com/NMS1010/TestGitHubAction
+  #         cd TestGitHubAction/
+  #         sudo apt-get update
+  #         sudo apt-get install -y docker.io
+  #         sudo systemctl start docker
+  #         sudo systemctl enable docker
+  #         sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  #         sudo chmod +x /usr/local/bin/docker-compose
+  #         sudo docker-compose down
+  #         sudo docker-compose up -d
 
