@@ -95,8 +95,6 @@ jobs:
         pip install pytest==6.2.5
         pip install cerberus
         pip install pytest-html
-    - name: Local Test
-      run: |
         sudo chmod +x /home/runner/work/TestGitHubAction/TestGitHubAction/video-server/src/videoserver/lib/video_editor/script/capture_list_frames.sh
         pytest --html=report.html
   scan:
