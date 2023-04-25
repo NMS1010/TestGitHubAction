@@ -101,10 +101,10 @@ jobs:
         sudo chmod +x /home/runner/work/TestGitHubAction/TestGitHubAction/video-server/src/videoserver/lib/video_editor/script/capture_list_frames.sh
         python -m pytest --html=report.html -vv -n auto --self-contained-html
     - name: Upload Test Report
-        uses: actions/upload-artifact@v2
-        with:
-          name: Test Report
-          path: video_service/report.html
+      uses: actions/upload-artifact@v2
+      with:
+        name: Test Report
+        path: video_service/report.html
   scan:
     name: Sonarqube - Code Quanlity Scan
     needs: build
