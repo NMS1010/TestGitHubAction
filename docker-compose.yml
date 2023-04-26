@@ -2,13 +2,10 @@ version: '3'
 services:
   rabbit:
     image: rabbitmq:3
-    hostname: "rabbit"
     container_name: video-server-rabbitmq
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
-      - RABBITMQ_DEFAULT_VHOST= "/"
-      - CELERY_BROKER_URL=amqp://guest:guest@broker:5672
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -31,7 +28,7 @@ services:
     environment:
       - MEDIA_STORAGE=filesystem
       - FS_MEDIA_STORAGE_PATH=/opt/media
-      - RABBIT_MQ_URL=amqp://guest:guest@broker:5672
+      - RABBIT_MQ_URL=pyamqp://guest@127.0.0.1:5672//
       - MONGO_HOST=mongodb
     volumes:
       - server_data:/data/db:rw
