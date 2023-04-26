@@ -2,10 +2,14 @@ version: '3'
 services:
   rabbit:
     image: rabbitmq:3
+    hostname: "rabbit"
     container_name: video-server-rabbitmq
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
   mongodb:
     image: mongo:3
     container_name: video-server-mongodb
@@ -25,7 +29,7 @@ services:
     environment:
       - MEDIA_STORAGE=filesystem
       - FS_MEDIA_STORAGE_PATH=/opt/media
-      - RABBIT_MQ_URL=pyamqp://guest@rabbit//
+      - RABBIT_MQ_URL=pyamqp://guest@rabbit:5672//
       - MONGO_HOST=mongodb
     volumes:
       - server_data:/data/db:rw
