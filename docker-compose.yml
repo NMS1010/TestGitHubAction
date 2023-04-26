@@ -28,7 +28,7 @@ services:
     environment:
       - MEDIA_STORAGE=filesystem
       - FS_MEDIA_STORAGE_PATH=/opt/media
-      - RABBIT_MQ_URL=pyamqp://guest@127.0.0.1:5672//
+      - RABBIT_MQ_URL=pyamqp://guest@0:0:0:0:5672//
       - MONGO_HOST=mongodb
     volumes:
       - server_data:/data/db:rw
