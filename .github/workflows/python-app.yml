@@ -118,7 +118,7 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   deploy:
     needs: scan
-    name: Deploy to EC2
+    name: Deploy to EC2 Staging environment
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
