@@ -143,7 +143,7 @@ jobs:
   staging_test:
     needs: deploy
     name: Test for staging environment
-        runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
