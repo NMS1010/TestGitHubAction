@@ -32,7 +32,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "./test-data/video01.mp4"
+									"src": "video01.mp4"
 								}
 							]
 						},
@@ -287,7 +287,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "./test-data/video01.mp4"
+									"src": "video01.mp4"
 								}
 							]
 						},
@@ -616,7 +616,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "./test-data/video01.mp4"
+									"src": "video01.mp4"
 								}
 							]
 						},
@@ -854,6 +854,511 @@
 								"{{not_obj_id}}",
 								"raw",
 								"video"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Capture Preview Thumbnails",
+			"item": [
+				{
+					"name": "Create project",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set('projectId', pm.response.json()['_id'])\r",
+									"pm.environment.set('initial_project', JSON.stringify(pm.response.json()))"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "video01.mp4"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create  success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let resp = pm.response.json()\r",
+									"\r",
+									"tests['Status code is 202 ACCEPTED'] = pm.response.code === 202\r",
+									"tests['Processing'] = resp['processing'] === true\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/{{projectId}}/thumbnails?type=preview&position=10&crop=0,0,640,480",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"{{projectId}}",
+								"thumbnails"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "preview"
+								},
+								{
+									"key": "position",
+									"value": "10"
+								},
+								{
+									"key": "crop",
+									"value": "0,0,640,480"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Conflict while preview thumbnail is creating",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.json())\r",
+									"\r",
+									"tests['Status code is 409 Conflict'] = pm.response.code === 409\r",
+									"// tests['Processing'] = pm.response.json()['processing'][0] === \"Task edit video is still processing\""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/{{projectId}}/thumbnails?type=preview&position=10&crop=0,0,640,480",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"{{projectId}}",
+								"thumbnails"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "preview"
+								},
+								{
+									"key": "position",
+									"value": "10"
+								},
+								{
+									"key": "crop",
+									"value": "0,0,640,480"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get preivew thumbnail success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const resp = pm.response.json()\r",
+									"console.log(resp)\r",
+									"tests['Status code is 200 OK'] = pm.response.code === 200\r",
+									"\r",
+									"tests['Mimetype is image/png'] = resp['thumbnails']['preview']['mimetype'] === 'image/png'\r",
+									"tests['Position is 10'] = resp['thumbnails']['preview']['position'] === 10\r",
+									"\r",
+									"tests['Width is 640'] = resp['thumbnails']['preview']['width'] === 640\r",
+									"tests['Height is 480'] = resp['thumbnails']['preview']['height'] === 480"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"setTimeout(() => {\r",
+									"\r",
+									"}, 3000)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/{{projectId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"{{projectId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create fail due to x,y value in crop param",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"tests['Status code is 400 BAD REQUEST'] = pm.response.code === 400\r",
+									"tests['Y value is not in allowed range'] = pm.response.json()['crop'][0] === \"y is less than minimum allowed crop height\""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/{{projectId}}/thumbnails?type=preview&position=10&crop=0,1000,640,480",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"{{projectId}}",
+								"thumbnails"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "preview"
+								},
+								{
+									"key": "position",
+									"value": "10"
+								},
+								{
+									"key": "crop",
+									"value": "0,1000,640,480"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create fail due to width, height value in crop param",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"tests['Status code is 400 BAD REQUEST'] = pm.response.code === 400\r",
+									"tests['Width value is not in video range'] = pm.response.json()['crop'][0] === \"width of crop's frame is outside a video's frame\"\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: pm.environment.get('url') + '/' + pm.environment.get('projectId'),\r",
+									"    method: \"DELETE\"\r",
+									"}, function(err, res) {\r",
+									"    console.log(err);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/{{projectId}}/thumbnails?type=preview&position=10&crop=0,0,1640,480",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"{{projectId}}",
+								"thumbnails"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "preview"
+								},
+								{
+									"key": "position",
+									"value": "10"
+								},
+								{
+									"key": "crop",
+									"value": "0,0,1640,480"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Edit Video Project",
+			"item": [
+				{
+					"name": "Create and duplicate project",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set('projectId', pm.response.json()['_id'])\r",
+									"let url = pm.environment.get('url') + '/' + pm.environment.get('projectId') + '/duplicate'\r",
+									"const postRequest = {\r",
+									"  url: url,\r",
+									"  method: 'POST'\r",
+									"};\r",
+									"pm.sendRequest(postRequest, (error, response) => {\r",
+									"  if(!error){\r",
+									"      pm.environment.set('dup_projectId', response.json()['_id'])\r",
+									"      pm.environment.set('dup_project', JSON.stringify(response.json()))\r",
+									"  }\r",
+									"});\r",
+									"pm.environment.set('initial_project', JSON.stringify(pm.response.json()))"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "video01.mp4"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Succeed in starting edit video's scale",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let resp = pm.response.json()\r",
+									"tests['Status code is 202 ACCEPTED'] = pm.response.code === 202\r",
+									"tests['Processing'] = resp['processing'] === true"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"scale\": 800\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/{{dup_projectId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"{{dup_projectId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Video's scale after editing is match",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let resp = pm.response.json()\r",
+									"console.log(resp)\r",
+									"let metaObject = resp['metadata']\r",
+									"\r",
+									"tests['Width is 800'] = metaObject['width'] === 800"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"setTimeout(() => {\r",
+									"\r",
+									"}, 50000)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/{{dup_projectId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"{{dup_projectId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Scale value is too great",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let resp = pm.response.json()\r",
+									"\r",
+									"tests['Status code is 400 BAD REQUEST'] = pm.response.code === 400\r",
+									"tests['Scale value is too big'] = resp['scale'] !== \"\""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"scale\": 5000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/{{dup_projectId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"{{dup_projectId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Scale value equal 0",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let resp = pm.response.json()\r",
+									"\r",
+									"tests['Status code is 400 BAD REQUEST'] = pm.response.code === 400\r",
+									"tests['Scale value equal 0'] = resp['scale'] !== \"\""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"scale\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/{{dup_projectId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"{{dup_projectId}}"
 							]
 						}
 					},

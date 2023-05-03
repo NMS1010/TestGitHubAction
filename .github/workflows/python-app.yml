@@ -93,7 +93,6 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         pip install -e video-server/[dev]
         pip install pytest==6.2.5
-        pip install cerberus
         pip install pytest-html
     - name: Run tests
       run: |
@@ -130,7 +129,13 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: ${{ secrets.SSH_PORT }}
         script: |
-          git clone https://github.com/NMS1010/TestGitHubAction
+          if [ -d "TestGitHubAction" ]; then
+            cd TestGitHubAction
+            git pull && \echo "Pull completed"
+            cd ../
+          else
+            git clone https://github.com/NMS1010/TestGitHubAction && \echo "Clone completed"
+          fi
           cd TestGitHubAction/
           sudo apt-get update
           sudo apt-get install -y docker.io
@@ -139,7 +144,7 @@ jobs:
           sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
           sudo docker-compose down
-          sudo docker-compose up -d
+          sudo docker-compose up -d --build
   staging_test:
     needs: deploy
     name: Test for staging environment
