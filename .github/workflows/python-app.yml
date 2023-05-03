@@ -147,6 +147,8 @@ jobs:
           sudo docker rm video-server-mongodb
           sudo docker stop video-server-rabbitmq
           sudo docker rm video-server-rabbitmq
+          sudo docker stop video-server
+          sudo docker rm video-server
           sudo docker-compose down
           sudo docker-compose up -d --build
   staging_test:
