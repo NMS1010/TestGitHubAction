@@ -32,7 +32,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "video01.mp4"
+									"src": "./test-data/video01.mp4"
 								}
 							]
 						},
@@ -287,7 +287,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "video01.mp4"
+									"src": "./test-data/video01.mp4"
 								}
 							]
 						},
@@ -616,7 +616,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "video01.mp4"
+									"src": "./test-data/video01.mp4"
 								}
 							]
 						},
@@ -887,7 +887,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "video01.mp4"
+									"src": "./test-data/video01.mp4"
 								}
 							]
 						},
@@ -1186,7 +1186,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "video01.mp4"
+									"src": "./test-data/video01.mp4"
 								}
 							]
 						},
