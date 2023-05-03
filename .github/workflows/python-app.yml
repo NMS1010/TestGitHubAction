@@ -143,30 +143,11 @@ jobs:
           sudo systemctl enable docker
           sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
-          if [ "$(sudo docker inspect -f '{{.State.Running}}' "video-server-mongodb" 2>/dev/null)" == "true" ]; then
-              # Stop the container
-              sudo docker stop video-server-mongodb
-              sudo docker rm video-server-mongodb
-              echo "Container stopped."
-          else
-              echo "Container is not running."
-          fi
-          if [ "$(sudo docker inspect -f '{{.State.Running}}' "video-server-rabbitmq" 2>/dev/null)" == "true" ]; then
-              # Stop the container
-              sudo docker stop video-server-rabbitmq
-              sudo docker rm video-server-rabbitmq
-              echo "Container stopped."
-          else
-              echo "Container is not running."
-          fi
-          if [ "$(docker inspect -f '{{.State.Running}}' "video-server" 2>/dev/null)" == "true" ]; then
-              # Stop the container
-              sudo docker stop video-server
-              sudo docker rm video-server
-              echo "Container stopped."
-          else
-              echo "Container is not running."
-          fi
+
+          docker stop video-server-mongodb || true && docker rm video-server-mongodb || true
+          docker stop video-server-rabbitmq || true && docker rm video-server-rabbitmq || true
+          docker stop video-server || true && docker rm video-server || true
+          
           sudo docker-compose down
           sudo docker-compose up -d --build
   staging_test:
@@ -191,7 +172,7 @@ jobs:
 
       - name: Run POSTMAN collection
         run: |
-          newman run APITesting.postman_collection.json --environment=API.postman_environment.json -r htmlextra --reporter-htmlextra-export testResults/htmlreport.html --reporter-htmlextra-darkTheme  > testResults/runreport.html
+          newman run APITesting.postman_collection.json --environment=API.postman_environment.json -r htmlextra --reporter-htmlextra-export testResults/htmlreport.html --reporter-htmlextra-darkTheme
 
       - name: Output the run Details
         uses: actions/upload-artifact@v2
