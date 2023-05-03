@@ -590,7 +590,277 @@
 				}
 			]
 		},
-		
+		{
+			"name": "Get Raw Video",
+			"item": [
+				{
+					"name": "Create Project",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set('projectId', pm.response.json()['_id'])\r",
+									"pm.environment.set('initial_project', JSON.stringify(pm.response.json()))"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "./test-data/video01.mp4"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get full video",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"tests['Status code is 200 OK'] = pm.response.code === 200\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/{{projectId}}/raw/video",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"{{projectId}}",
+								"raw",
+								"video"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get partial video",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"tests['Status code is 206 Partial Content'] = pm.response.code === 206\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Range",
+								"value": "bytes=200-",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/{{projectId}}/raw/video",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"{{projectId}}",
+								"raw",
+								"video"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Conflict while get video",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let url = pm.environment.get('url') + '/' + pm.environment.get('projectId') + '/duplicate'\r",
+									"const postRequest = {\r",
+									"  url: url,\r",
+									"  method: 'POST'\r",
+									"};\r",
+									"pm.sendRequest(postRequest, (error, response) => {\r",
+									"    if(!error){\r",
+									"        let dupId = response.json()['_id']\r",
+									"        url = pm.environment.get('url') + '/' + dupId\r",
+									"        const formData = {\r",
+									"            \"crop\": \"10,10,480,360\",\r",
+									"            \"rotate\": 90,\r",
+									"            \"scale\": 800,\r",
+									"            \"trim\": \"5.1,10.5\"\r",
+									"        };\r",
+									"        const editVideoReq = {\r",
+									"            url: url,\r",
+									"            method: 'PUT',\r",
+									"            header: {\r",
+									"                'Content-type': 'application/json'\r",
+									"            },\r",
+									"            body: {\r",
+									"                mode: 'raw',\r",
+									"                raw: JSON.stringify(formData)\r",
+									"            }\r",
+									"            };\r",
+									"            pm.sendRequest(editVideoReq, (error, response) => {\r",
+									"            if(!error){\r",
+									"                pm.environment.set('edit_projectId', dupId)\r",
+									"            }\r",
+									"        });\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"\r",
+									"tests['Status code is 409 Conflict'] = pm.response.code === 409\r",
+									"tests['Processing'] = pm.response.json()['processing'][0] === \"Task edit video is still processing\"\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: pm.environment.get('url') + '/' + pm.environment.get('edit_projectId'),\r",
+									"    method: \"DELETE\"\r",
+									"}, function(err, res) {\r",
+									"    console.log(err);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/{{edit_projectId}}/raw/video",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"{{edit_projectId}}",
+								"raw",
+								"video"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Video is not found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let resp = pm.response\r",
+									"\r",
+									"tests[\"Status code is 404\"] = resp.code === 404\r",
+									"tests[\"Contain errors\"] = typeof resp.json().error === 'string' && resp.json().error === \"Project with id '\"+ pm.environment.get('wrong_id') +\"' was not found.\"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/{{wrong_id}}/raw/video",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"{{wrong_id}}",
+								"raw",
+								"video"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Format Id doesn't mactch",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let resp = pm.response\r",
+									"\r",
+									"tests[\"Status code is 404\"] = resp.code === 404\r",
+									"\r",
+									"tests[\"Contain errors\"] = typeof resp.json().error === 'string' && resp.json().error === \"Project with id '\"+ pm.environment.get('not_obj_id') +\"' was not found.\"\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: pm.environment.get('url') + '/' + pm.environment.get('projectId'),\r",
+									"    method: \"DELETE\"\r",
+									"}, function(err, res) {\r",
+									"    console.log(err);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/{{not_obj_id}}/raw/video",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"{{not_obj_id}}",
+								"raw",
+								"video"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
 		{
 			"name": "Capture Preview Thumbnails",
 			"item": [

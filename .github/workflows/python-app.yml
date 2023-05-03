@@ -97,7 +97,7 @@ jobs:
     - name: Run tests
       run: |
         source venv/bin/activate
-        sudo chmod +x /home/runner/work/TestGitHubAction/TestGitHubAction/video-server/src/videoserver/lib/video_editor/script/capture_list_frames.sh
+        sudo chmod +x ./video-server/src/videoserver/lib/video_editor/script/capture_list_frames.sh
         pytest --html=report.html --self-contained-html
     - name: Upload Test Report
       uses: actions/upload-artifact@v2
